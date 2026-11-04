@@ -1,5 +1,6 @@
-import { Settings, Info, Upload, Minus, X } from "lucide-react";
+import { Settings, Info, Upload, Minus, X, Sparkles } from "lucide-react";
 import { getCurrentWindow } from "@tauri-apps/api/window";
+import { invoke } from "@tauri-apps/api/core";
 
 function App() {
   // Ambil referensi ke jendela aplikasi saat ini
@@ -13,6 +14,27 @@ function App() {
     appWindow.close();
   };
 
+  const handleTestAI = async () => {
+    try {
+      // ⚠️ GANTI PATH INI DENGAN PATH GAMBAR ASLI DI KOMPUTERMU
+      // Pastikan formatnya pakai double-backslash (\\) di Windows
+      const imagePath = "C:\\Users\\GILMON\\Pictures\\foto.jpg"; 
+      
+      // Tampilkan loading sebentar (opsional)
+      const btn = document.getElementById("btn-test");
+      if(btn) btn.innerText = "Memproses AI...";
+
+      const resultPath = await invoke<string>("test_remove_bg", { imagePath });
+      
+      alert(`Berhasil! Cek file: ${resultPath}`);
+      if(btn) btn.innerText = "Tes Hapus Background";
+    } catch (err) {
+      alert(`Error: ${err}`);
+      const btn = document.getElementById("btn-test");
+      if(btn) btn.innerText = "Tes Hapus Background";
+    }
+  };
+
   return (
     <div className="w-full h-screen flex flex-col bg-white overflow-hidden">
       
@@ -21,9 +43,14 @@ function App() {
         data-tauri-drag-region 
         className="h-10 flex items-center justify-between px-4 border-b border-border bg-white shrink-0"
       >
-        <div className="flex items-center gap-2 pointer-events-none">
-          <div className="w-4 h-4 bg-accent rounded-sm"></div>
-          <span className="text-sm font-semibold text-text-primary tracking-tight">DropBG</span>
+        <div 
+          data-tauri-drag-region 
+          className="flex items-center gap-2 pointer-events-none"
+        >
+          <div className="w-4 h-4 bg-accent rounded-sm pointer-events-none"></div>
+          <span className="text-sm font-semibold text-text-primary tracking-tight pointer-events-none">
+            DropBG
+          </span>
         </div>
         
         {/* Window Controls */}
@@ -52,6 +79,16 @@ function App() {
           <p className="mt-3 text-sm font-medium text-text-primary">Drop image here</p>
           <p className="mt-1 text-xs text-text-muted">JPG · PNG · WebP · max 20MB</p>
         </div>
+
+        {/* --- TOMBOL TES AI (BARU) --- */}
+        <button 
+          id="btn-test"
+          onClick={handleTestAI}
+          className="flex items-center justify-center gap-2 w-full p-2 bg-accent text-white rounded-md text-sm font-medium hover:bg-accent-hover transition-colors shadow-sm"
+        >
+          <Sparkles className="w-4 h-4" />
+          Tes Hapus Background
+        </button>
 
         {/* History Area */}
         <div>
