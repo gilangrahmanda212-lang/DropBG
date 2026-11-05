@@ -1,14 +1,7 @@
 name: Build Linux
 
 on:
-  push:
-    tags:
-      - 'v*' 
-  workflow_dispatch:
-
-# 1. TAMBAHKAN IZIN INI (Agar bisa buat Release & Upload)
-permissions:
-  contents: write
+  workflow_dispatch: # Hanya bisa dijalankan manual
 
 jobs:
   build:
@@ -42,22 +35,12 @@ jobs:
       - name: Install dependencies (Frontend)
         run: npm install
 
-      - name: Build Tauri App
-        uses: tauri-apps/tauri-action@v0
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          # 2. PAKAI TAG STATIS (Agar tidak error "tag main")
-          tagName: v0.1.0-linux
-          releaseName: 'DropBG Linux v0.1.0'
-          releaseBody: 'Release otomatis untuk Linux.'
-          releaseDraft: true
-          prerelease: false
-          args: --target x86_64-unknown-linux-gnu
+      # PERUBAHAN ADA DI SINI: Langsung jalankan build manual
+      - name: Build Tauri App (Manual)
+        run: npm run tauri build -- --target x86_64-unknown-linux-gnu
 
-      # 3. TAMBAHKAN if: always() (Agar tetap upload walau ada error)
+      # UPLOAD HASILNYA
       - name: Upload Artifacts
-        if: always() 
         uses: actions/upload-artifact@v4
         with:
           name: dropbg-linux
