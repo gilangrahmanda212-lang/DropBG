@@ -7,8 +7,6 @@ DropBG is a free, open-source desktop application that automatically removes ima
 
 Simply drag & drop an image into the app, and the result is **automatically copied to your clipboard**. Just hit `Ctrl+V` in Photoshop, Figma, or any other app!
 
-![DropBG App Screenshot](https://via.placeholder.com/800x400?text=Add+Your+DropBG+Screenshot+Here)
-*(Replace the placeholder link above with your actual screenshot)*
 
 ## ✨ Features
 
