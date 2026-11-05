@@ -3,8 +3,12 @@ name: Build Linux
 on:
   push:
     tags:
-      - 'v*' # Trigger build jika kamu push tag rilis (misal: v0.1.1)
-  workflow_dispatch: # Bisa juga dijalankan manual dari tab Actions di GitHub
+      - 'v*' 
+  workflow_dispatch:
+
+# 1. TAMBAHKAN IZIN INI (Agar bisa buat Release & Upload)
+permissions:
+  contents: write
 
 jobs:
   build:
@@ -18,20 +22,12 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y libwebkit2gtk-4.1-dev \
-            build-essential \
-            curl \
-            wget \
-            file \
-            libxdo-dev \
-            libssl-dev \
-            libayatana-appindicator3-dev \
-            librsvg2-dev
+            build-essential curl wget file libxdo-dev libssl-dev \
+            libayatana-appindicator3-dev librsvg2-dev
 
       - name: Download AI Model
         run: |
           mkdir -p src-tauri/models
-          # Ganti URL di bawah dengan link direct download model birefnet.onnx milikmu
-          # (Kamu bisa taruh modelnya di GitHub Release, Google Drive direct link, dll)
           wget -O src-tauri/models/birefnet.onnx "https://github.com/ZhengPeng7/BiRefNet/releases/download/v1/BiRefNet-general-bb_swin_v1_tiny-epoch_232.onnx"
 
       - name: Setup Node.js
@@ -51,17 +47,21 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tagName: ${{ github.ref_name }} # Akan membuat Release otomatis jika di-trigger lewat tag
-          releaseName: 'DropBG ${{ github.ref_name }}'
+          # 2. PAKAI TAG STATIS (Agar tidak error "tag main")
+          tagName: v0.1.0-linux
+          releaseName: 'DropBG Linux v0.1.0'
           releaseBody: 'Release otomatis untuk Linux.'
           releaseDraft: true
           prerelease: false
           args: --target x86_64-unknown-linux-gnu
 
+      # 3. TAMBAHKAN if: always() (Agar tetap upload walau ada error)
       - name: Upload Artifacts
+        if: always() 
         uses: actions/upload-artifact@v4
         with:
           name: dropbg-linux
           path: |
-            src-tauri/target/release/bundle/deb/*.deb
-            src-tauri/target/release/bundle/appimage/*.AppImage
+            src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/deb/*.deb
+            src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/rpm/*.rpm
+            src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/*.AppImage
